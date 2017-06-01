@@ -1,4 +1,5 @@
 import * as Matter from "matter-js"
+import * as THREE from "three"
 
 import ISceneWorker from "./scene.worker.i-scene-worker"
 import ISceneNode from "../scene.i-scene-node"

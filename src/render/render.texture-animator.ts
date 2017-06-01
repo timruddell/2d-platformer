@@ -1,3 +1,5 @@
+import * as THREE from "three"
+
 /**
  * Handles iteration over an animation spritesheet to animate textures.
  * 

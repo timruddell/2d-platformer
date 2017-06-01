@@ -1,3 +1,5 @@
+import * as THREE from "three"
+
 import WebTextureLoader from "./meta.web-texture-loader"
 
 import { ResourceType } from "./meta.consts"

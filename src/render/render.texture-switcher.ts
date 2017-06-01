@@ -1,3 +1,5 @@
+import * as THREE from "three"
+
 import TextureAnimator from "./render.texture-animator"
 
 /**

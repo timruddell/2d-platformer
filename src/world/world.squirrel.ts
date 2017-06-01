@@ -1,3 +1,4 @@
+import * as THREE from "three"
 import * as Matter from "matter-js"
 
 import ISceneNode from "../scene/scene.i-scene-node"

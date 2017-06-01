@@ -1,3 +1,5 @@
+import * as THREE from "three"
+
 import { View } from "./render.consts"
 
 /*

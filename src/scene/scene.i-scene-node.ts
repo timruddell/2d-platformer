@@ -1,3 +1,5 @@
+import * as THREE from "three"
+
 /**
  * Defines a node that can be involved in a game scene.
  * 

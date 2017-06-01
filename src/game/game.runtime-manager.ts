@@ -1,6 +1,8 @@
 import * as Matter from "matter-js"
+import * as THREE from "three"
 
 import WebglWrapper from "../render/render.webgl-wrapper"
+
 import SceneManager from "../scene/scene.scene-manager"
 import { View } from "../render/render.consts"
 
@@ -49,6 +51,7 @@ class RuntimeManager {
         this._perspCamera.position.set(0, 0, 850);
         this._perspCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
+        // Create player and wire up game.
         SceneManager.initializeScene();
 
 

@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import * as Matter from "matter-js"
 
 import { View } from "../render/render.consts"
