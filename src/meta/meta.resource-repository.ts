@@ -15,8 +15,6 @@ class ResourceRepository<TResourceType> {
 
     // Local hashmap for obtained resources.
     private _resources : { [id : string] : any } = { };
-    // Local hashmap for promises awaiting resources.
-    private _awaiting : { [id : string] : any } = { };
 
 
     constructor (resourceType : number, resourceLoader : IResourceLoader<TResourceType>) {
@@ -28,44 +26,27 @@ class ResourceRepository<TResourceType> {
     /// Require the respository to obtain a remote resource coresponding to the passed ID array.
     ///
     require (resourceIds : Array<string>) {
-        return Promise.all(
-            resourceIds.map((rId) => {
-                // If there's already a request for this resource, return the current promise.
-                if (!!this._awaiting[rId]) {
-                    return this._awaiting[rId];
+        
+        return Promise.all(resourceIds.map(
+            async (rId) => {
+                // If we already have the resource, instantly resolve.
+                if (!!this._resources[rId]) {
+                    return {
+                        id: rId,
+                        value: this._resources[rId]
+                    };
                 }
 
-                // Return a new promise with the resolved resource.
-                return new Promise((resolve, reject) => {
-                    
-                    // If we already have the resource, instantly resolve.
-                    if (!!this._resources[rId]) {
-                        resolve({
-                            id: rId,
-                            value: this._resources[rId]
-                        });
-                        return;
-                    }
-
-                    // Otherwise ask the network network loader to obtain the resource and chain this promise. 
-                    var remotePromise = this._resourceLoader.require(rId);
-                    this._awaiting[rId] = remotePromise;
-
-                    remotePromise.then(
-                        (resource) => {
-                            this._resources[rId] = resource.value;
-                            resolve(resource);
-                            delete this._awaiting[rId];
-                        }
-                    ).catch(
-                        (error) => {
-                            reject(error);
-                            this._awaiting[rId];
-                        }
-                    );
-                });
-            })
-        );
+                // Otherwise ask the network network loader to obtain the resource. 
+                try {
+                    var resource = await this._resourceLoader.require(rId);
+                    this._resources[rId] = resource.value;
+                    return resource;
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            }));
     }
 
     // Properties.

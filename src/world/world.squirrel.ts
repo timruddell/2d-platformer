@@ -40,7 +40,7 @@ class Squirrel
         this._buildSceneNode();
     }
 
-    private _buildSceneNode () {
+    private async _buildSceneNode () {
         this._sceneNode = new THREE.Group();
 
         var sprite = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -62,46 +62,48 @@ class Squirrel
         
         this._textureSwitcher = new TextureSwitcher(sprite);
 
-        ResourceManager.getRepository(ResourceType.texture)
+        let textures = await ResourceManager.getRepository(ResourceType.texture)
             .require([
                 "assets/squirrel_idle.png",
                 "assets/squirrel_run.png",
                 "assets/squirrel_fly.png",
-            ])
-            .then(([idle, run, fly]) => {
-                let idleTexture : THREE.Texture = idle.value;
-                let runTexture : THREE.Texture = run.value;
-                let flyTexture : THREE.Texture = fly.value;
+            ]);
 
-                // Nearest for subsampling pixel-graphics. TODO: default in loader?
-                idleTexture.magFilter = THREE.NearestFilter;
-                runTexture.magFilter = THREE.NearestFilter;
-                flyTexture.magFilter = THREE.NearestFilter;
+        let [idle, run, fly] = textures;
+            
+        let idleTexture : THREE.Texture = idle.value;
+        let runTexture : THREE.Texture = run.value;
+        let flyTexture : THREE.Texture = fly.value;
 
-                // Create an animator to work with the textures.
-                var idleAnimator = new TextureAnimator(idleTexture, 1, Infinity);
-                var runAnimator = new TextureAnimator(runTexture, 5, 0.06);
-                var flyAnimator = new TextureAnimator(flyTexture, 1, Infinity);
+        // Nearest for subsampling pixel-graphics. TODO: default in loader?
+        idleTexture.magFilter = THREE.NearestFilter;
+        runTexture.magFilter = THREE.NearestFilter;
+        flyTexture.magFilter = THREE.NearestFilter;
 
-                // Register the animations with the texture switcher.
-                // TODO: action names could be done with enums?
-                this._textureSwitcher.addTexture("idle", idleAnimator);
-                this._textureSwitcher.addTexture("run", runAnimator);
-                this._textureSwitcher.addTexture("fly", flyAnimator);
+        // Create an animator to work with the textures.
+        var idleAnimator = new TextureAnimator(idleTexture, 1, Infinity);
+        var runAnimator = new TextureAnimator(runTexture, 5, 0.06);
+        var flyAnimator = new TextureAnimator(flyTexture, 1, Infinity);
 
-                // Start on idle animation.
-                this._textureSwitcher.switchTexture("idle");
+        // Register the animations with the texture switcher.
+        // TODO: action names could be done with enums?
+        this._textureSwitcher.addTexture("idle", idleAnimator);
+        this._textureSwitcher.addTexture("run", runAnimator);
+        this._textureSwitcher.addTexture("fly", flyAnimator);
 
-                // Add a scene worker to run the animation and update every frame.
-                this.workers.push(new AnimateTextureWorker(runAnimator));
-                // Add a scene worker to control the movement of the player based on the changing input state.
-                this.workers.push(new MovementControlWorker(this, InputManager.playerControlState, this._textureSwitcher));
-                this.workers.push(UpdatePhysicsSceneWorker.fromSceneNode(this));
+        // Start on idle animation.
+        this._textureSwitcher.switchTexture("idle");
 
-                // Push the sprite as a child of this ISceneNode.
-                this._sceneNode.add(sprite);
-                //this._sceneNode.add(collisionGuide);
-            });
+        // Add a scene worker to run the animation and update every frame.
+        this.workers.push(new AnimateTextureWorker(runAnimator));
+        // Add a scene worker to control the movement of the player based on the changing input state.
+        this.workers.push(new MovementControlWorker(this, InputManager.playerControlState, this._textureSwitcher));
+        this.workers.push(UpdatePhysicsSceneWorker.fromSceneNode(this));
+
+        // Push the sprite as a child of this ISceneNode.
+        this._sceneNode.add(sprite);
+        
+        //this._sceneNode.add(collisionGuide);
     }
 
     getNode () {
